@@ -1,0 +1,10 @@
+﻿{{# Templating language: https://github.com/scriban/scriban/blob/master/doc/language.md -}}
+namespace {{Namespace}};
+
+partial class {{ClassName}}
+{
+{{-for method in Methods}}
+    public void {{method.MethodName}}({{method.ParametersString}})
+        => Console.WriteLine($"Invoking '{{method.Topic}}' with command type <{{method.MethodParameters[0].ParameterTypeName}}>.");
+{{end-}}
+}
