@@ -8,10 +8,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using Saunter.Generators.Model;
+using Saunter.Generators.Helpers;
 using Scriban;
 using InvalidOperationException = System.InvalidOperationException;
 
@@ -39,92 +42,75 @@ public class AsyncApiServiceGenerator : IIncrementalGenerator
 
     private static bool IsSyntaxTarget(SyntaxNode node)
     {
-        return node is ClassDeclarationSyntax classDeclarationSyntax && classDeclarationSyntax.AttributeLists.Count > 0 && classDeclarationSyntax.BaseList?.Types.Count > 0;
+        return node is ClassDeclarationSyntax classDeclarationSyntax && classDeclarationSyntax.AttributeLists.Count > 0;// && classDeclarationSyntax.BaseList?.Types.Count > 0;
     }
 
     private static ClassToGenerate GetSemanticTarget(GeneratorSyntaxContext context)
     {
         var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
         var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax);
-        var generatorAttributeSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Generators.AsyncApiServiceAttribute");
-        var asyncApiMarkerSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Attributes.AsyncApiAttribute");
-        var asyncApiChannelMarkerSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Attributes.ChannelAttribute");
-        var asyncApiChannelParameterMarkerSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Attributes.ChannelParameterAttribute");
-        var asyncApiSubscribeOperationMarkerSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Attributes.SubscribeOperationAttribute");
-        var asyncApiPublishOperationMarkerSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("Saunter.Attributes.PublishOperationAttribute");
+        var wellKnownAttributes = WellKnownAttributes.GetWellKnownAttributes(context.SemanticModel.Compilation);
 
-        if (classSymbol is not null && generatorAttributeSymbol is not null && asyncApiMarkerSymbol is not null && asyncApiChannelMarkerSymbol is not null &&
-            asyncApiChannelParameterMarkerSymbol is not null && asyncApiSubscribeOperationMarkerSymbol is not null && asyncApiPublishOperationMarkerSymbol is not null)
+        if (classSymbol is not null && wellKnownAttributes.IsValid())
         {
-            foreach (AttributeData generatorAttributeData in classSymbol.GetAttributes())
+            foreach (var generatorAttributeData in classSymbol.GetAttributes(wellKnownAttributes.GeneratorAttribute))
             {
-                if (generatorAttributeSymbol.Equals(generatorAttributeData.AttributeClass, SymbolEqualityComparer.Default))
-                {
-                    var className = classSymbol.Name;
-                    var fileName = classDeclarationSyntax.GetLocation().SourceTree.FilePath;
+                var className = classSymbol.Name;
+                var fileName = classDeclarationSyntax.GetLocation().SourceTree.FilePath;
+                var methodsToGenerate = new List<MethodsToGenerate>();
+                var interfaces = new List<string>();
 
-                    var methods = new List<MethodsToGenerate>();
-                    var interfaces = new List<string>();
-                    foreach (SimpleBaseTypeSyntax interfaceSyntax in classDeclarationSyntax.BaseList.Types.OfType<SimpleBaseTypeSyntax>())
+                // Check if the generator attributes defines an AsyncApi interface?
+                if (generatorAttributeData.ConstructorArguments.Length >= 2)
+                {
+                    foreach (var asyncApiInterfaceName in generatorAttributeData.ConstructorArguments[1].Values.Select(x => x.Value?.ToString()).Where(x => x != null))
+                    {
+                        var asyncApiInterface = context.SemanticModel.Compilation.GetTypeByMetadataName(asyncApiInterfaceName);
+                        if (asyncApiInterface != null)
+                        {
+                            if (AddInterfaceMethods(asyncApiInterface, wellKnownAttributes, fileName, out var methods))
+                            {
+                                interfaces.Add(asyncApiInterface.ToString());
+                                methodsToGenerate.AddRange(methods);
+                            }
+                        }
+                    }
+                }
+
+                // Check if the class implements an interface that defines an AsyncApi interface?
+                if (classDeclarationSyntax.BaseList != null)
+                {
+                    foreach (var interfaceSyntax in classDeclarationSyntax.BaseList.Types.OfType<SimpleBaseTypeSyntax>())
                     {
                         if (interfaceSyntax.Type is IdentifierNameSyntax identifierNameSyntax)
                         {
-                            var typeInfo = context.SemanticModel.GetTypeInfo(identifierNameSyntax).Type;
-                            var interfaceAttributes = typeInfo.GetAttributes();
-                            var asyncApiAttributes = interfaceAttributes.Where(a => asyncApiMarkerSymbol.Equals(a.AttributeClass, SymbolEqualityComparer.Default)).ToList();
-                            foreach (AttributeData asyncApiAttr in asyncApiAttributes)
+                            var asyncApiInterface = context.SemanticModel.GetTypeInfo(identifierNameSyntax).Type;
+                            if (AddInterfaceMethods(asyncApiInterface, wellKnownAttributes, fileName, out var methods))
                             {
-                                var documentName = asyncApiAttr.ConstructorArguments.FirstOrDefault().Value?.ToString();
-                            }
-
-                            if (asyncApiAttributes.Count > 0)
-                            {
-                                foreach (IMethodSymbol method in typeInfo.GetMembers().OfType<IMethodSymbol>())
-                                {
-                                    var methodName = method.Name;
-                                    var methodAttributes = method.GetAttributes();
-                                    var channelAttribute = methodAttributes.SingleOrDefault(a => asyncApiChannelMarkerSymbol.Equals(a.AttributeClass, SymbolEqualityComparer.Default));
-                                    var channelParametersAttributes = methodAttributes.Where(a => asyncApiChannelParameterMarkerSymbol.Equals(a.AttributeClass, SymbolEqualityComparer.Default));
-                                    var subscribeAttribute = methodAttributes.SingleOrDefault(a => asyncApiSubscribeOperationMarkerSymbol.Equals(a.AttributeClass, SymbolEqualityComparer.Default));
-                                    var publishAttribute = methodAttributes.SingleOrDefault(a => asyncApiPublishOperationMarkerSymbol.Equals(a.AttributeClass, SymbolEqualityComparer.Default));
-                                    var parameters = method.Parameters.Select(p => new MethodParameterData(p.Type.ToString(), p.Name)).ToList();
-
-                                    if (subscribeAttribute == null && publishAttribute == null)
-                                    {
-                                        throw new InvalidOperationException($"Method '{methodName}' does not define a [PublishOperation] nor a [SubscribeOperation] attribute in {fileName}.");
-                                    }
-                                    var topic = channelAttribute?.ConstructorArguments.FirstOrDefault().Value?.ToString();
-                                    if (topic != null)
-                                    {
-                                        var channelParameters = channelParametersAttributes.Select(a => new ChannelParameterData(a.ConstructorArguments[0].Value?.ToString(), a.ConstructorArguments[1].Value?.ToString())).ToList();
-                                        topic = ReplaceChannelParameters(topic, channelParameters, parameters, fileName);
-                                        methods.Add(new MethodsToGenerate(methodName, topic, parameters));
-                                    }
-                                }
-                                var interfaceName = identifierNameSyntax.Identifier.ValueText;
-                                interfaces.Add(interfaceName);
+                                interfaces.Add(asyncApiInterface.ToString());
+                                methodsToGenerate.AddRange(methods);
                             }
                         }
                     }
+                }
 
-                    if (interfaces.Count == 0)
+                if (interfaces.Count == 0)
+                {
+                    throw new InvalidOperationException($"Class '{className}' (file: {fileName}) was marked with [AsyncApiServiceAttribute] but does not implement any interface marked with [AsyncApiAttribute].");
+                }
+
+                if (methodsToGenerate.Count > 0)
+                {
+                    var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+                    var template = generatorAttributeData.ConstructorArguments[0].Value?.ToString() ?? throw new InvalidOperationException($"Template parameter was missing for class '{className}' in {fileName}.");
+
+                    // Prepend the path of the generating class if not empty to allow paths relative to the generating class' location.
+                    if (!string.IsNullOrWhiteSpace(fileName))
                     {
-                        throw new InvalidOperationException($"Class '{className}' (file: {fileName}) was marked with [AsyncApiServiceAttribute] but does not implement any interface marked with [AsyncApiAttribute].");
+                        template = Path.Combine(Path.GetDirectoryName(fileName), template);
                     }
 
-                    if (methods.Count > 0)
-                    {
-                        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
-                        var template = generatorAttributeData.ConstructorArguments[0].Value?.ToString();
-
-                        // Prepend the path of the generating class if not empty to allow paths relative to the generating class' location.
-                        if (!string.IsNullOrWhiteSpace(fileName))
-                        {
-                            template = Path.Combine(Path.GetDirectoryName(fileName), template);
-                        }
-
-                        return new ClassToGenerate(template, namespaceName, className, interfaces, methods);
-                    }
+                    return new ClassToGenerate(template, namespaceName, className, interfaces, methodsToGenerate);
                 }
             }
         }
@@ -132,25 +118,41 @@ public class AsyncApiServiceGenerator : IIncrementalGenerator
         return null;
     }
 
-    private static string ReplaceChannelParameters(string topic, ICollection<ChannelParameterData> channelParameters, List<MethodParameterData> parameters, string fileName)
+    private static bool AddInterfaceMethods(INamespaceOrTypeSymbol asyncApiInterface, WellKnownAttributes wellKnownAttributes, string fileName, out List<MethodsToGenerate> methods)
     {
-        var result = topic;
-        foreach (var channelParameter in channelParameters)
+        methods = new();
+
+        var asyncApiAttributes = asyncApiInterface.GetAttributes(wellKnownAttributes.AsyncApiAttribute);
+        //foreach (AttributeData asyncApiAttr in asyncApiAttributes)
+        //{
+        //    var documentName = asyncApiAttr.ConstructorArguments.FirstOrDefault().Value?.ToString();
+        //}
+
+        if (!asyncApiAttributes.Any())
         {
-            var parameter = parameters.SingleOrDefault(x => x.ParameterTypeName == channelParameter.ChannelParameterTypeName)
-                            ?? throw new InvalidOperationException($"Unknown [ChannelParameter] defined: '{channelParameter.ChannelParameterName}' of type '{channelParameter.ChannelParameterTypeName}' in {fileName}.");
-            result = result.Replace(channelParameter.ParameterNameNeedle, parameter.ParameterNameNeedle);
+            return false;
         }
-        if (result.Contains('{'))
+
+        foreach (var methodSymbol in asyncApiInterface.GetMembers().OfType<IMethodSymbol>())
         {
-            var splitted = result.Split(['.', '/']);
-            var invalidParameter = splitted.FirstOrDefault(x => x.Contains('{') && parameters.All(cp => cp.ParameterNameNeedle != x));
-            if (invalidParameter != default)
+            var methodName = methodSymbol.Name;
+            var methodAttributes = AsyncAttributesDefinition.FromSymbol(methodSymbol, wellKnownAttributes);
+
+            if (methodAttributes.Subscribe == null && methodAttributes.Publish == null)
             {
-                throw new InvalidOperationException($"Channel '{topic}' contains unknown channel parameter: '{invalidParameter}' in {fileName}.");
+                throw new InvalidOperationException($"Method '{methodName}' does not define a [PublishOperation] nor a [SubscribeOperation] attribute in {fileName}.");
+            }
+
+            var topic = methodAttributes.Channel?.ConstructorArguments.FirstOrDefault().Value?.ToString();
+            if (topic != null)
+            {
+                var parameters = methodSymbol.Parameters.Select(p => new MethodParameterData(p.Type.ToString(), p.Name)).ToList();
+
+                topic = ChannelParametersHelper.ParametrizeChannel(topic, methodAttributes.ChannelParameters, parameters);
+                methods.Add(new MethodsToGenerate(methodName, topic, parameters));
             }
         }
-        return result;
+        return true;
     }
 
     private static void Execute(SourceProductionContext context, (ClassToGenerate classToGenerate, ImmutableArray<AdditionalTemplate> templates) source)
@@ -162,12 +164,18 @@ public class AsyncApiServiceGenerator : IIncrementalGenerator
         }
 
         var fileName = $"{classToGenerate.Namespace}.{classToGenerate.ClassName}.g.cs";
-        var text = source.templates.SingleOrDefault(x => x.Path.Equals(classToGenerate.Template)) ?? throw new FileNotFoundException($"Template '{classToGenerate.Template}' not found for class '{classToGenerate.ClassName}'.");
+        var text = source.templates.SingleOrDefault(x => x.Path.Equals(classToGenerate.Template));
+        if (text == null)
+        {
+            throw new InvalidOperationException($"Template '{classToGenerate.Template}' not found for class '{classToGenerate.ClassName}'.");
+        }
+
         var template = Template.Parse(text.Text);
         if (template.HasErrors)
         {
             throw new InvalidOperationException($"Template '{classToGenerate.Template}' contains errors.\r\n{template.Messages}");
         }
+
         var renderContext = new ClassContext(classToGenerate.Namespace, classToGenerate.ClassName, classToGenerate.ImplementedAsyncApiInterfaces, classToGenerate.Methods);
         var rendered = template.Render(renderContext, memberRenamer: m => m.Name);
         context.AddSource(fileName, rendered);
@@ -175,15 +183,6 @@ public class AsyncApiServiceGenerator : IIncrementalGenerator
 
     private static void PostInitializationOutput(IncrementalGeneratorPostInitializationContext context)
     {
-        context.AddSource("Saunter.AsyncApiService.g.cs",
-            """
-            namespace Saunter.Generators;
-
-            [AttributeUsage(AttributeTargets.Class)]
-            internal class AsyncApiServiceAttribute(string templateFileName) : System.Attribute
-            {
-                public string TemplateFileName { get; } = templateFileName;
-            }
-            """);
+        context.AddSource("Saunter.AsyncApiService.g.cs", SourceText.From(EmbeddedResource.GetContent("Attributes.cs"), Encoding.UTF8));
     }
 }

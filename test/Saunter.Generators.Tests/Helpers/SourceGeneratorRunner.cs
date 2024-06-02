@@ -48,6 +48,6 @@ public class SourceGeneratorTests(ITestOutputHelper output)
 
         var result = outputCompilation.SyntaxTrees.Last().ToString();
         output.WriteLine(result);
-        return result;
+        return result.Trim();
     }
 }
