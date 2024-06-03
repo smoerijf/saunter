@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Saunter.Generators.Model;
-using Saunter.Generators.Helpers;
+using Saunter.Generators.Internal;
 using Scriban;
 using InvalidOperationException = System.InvalidOperationException;
 

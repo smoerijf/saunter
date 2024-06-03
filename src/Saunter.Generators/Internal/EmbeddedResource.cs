@@ -5,7 +5,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Saunter.Generators.Helpers;
+namespace Saunter.Generators.Internal;
 
 internal static class EmbeddedResource
 {

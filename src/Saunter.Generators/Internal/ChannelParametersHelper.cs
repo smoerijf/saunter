@@ -8,7 +8,7 @@ using System.Linq;
 using System;
 using Microsoft.CodeAnalysis;
 
-namespace Saunter.Generators.Helpers;
+namespace Saunter.Generators.Internal;
 
 internal static class ChannelParametersHelper
 {

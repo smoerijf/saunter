@@ -4,7 +4,7 @@
 
 using Microsoft.CodeAnalysis;
 
-namespace Saunter.Generators.Helpers;
+namespace Saunter.Generators.Internal;
 
 internal record WellKnownAttributes(
     INamedTypeSymbol GeneratorAttribute,

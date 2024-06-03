@@ -5,13 +5,13 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Saunter.Generators.Model;
+namespace Saunter.Generators;
 
 internal record ClassContext(string Namespace, string ClassName, List<string> ImplementedAsyncApiInterfaces, List<MethodsToGenerate> Methods);
 
 internal record MethodsToGenerate(string MethodName, string Topic, List<MethodParameterData> MethodParameters)
 {
-    public string ParametersString => string.Join(", ", this.MethodParameters.Select(x => $"{x.ParameterTypeName} {x.ParameterName}"));
+    public string ParametersString => string.Join(", ", MethodParameters.Select(x => $"{x.ParameterTypeName} {x.ParameterName}"));
 }
 
 internal record MethodParameterData(string ParameterTypeName, string ParameterName)

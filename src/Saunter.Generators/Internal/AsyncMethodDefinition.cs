@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Saunter.Generators.Helpers;
+namespace Saunter.Generators.Internal;
 
 internal record AsyncAttributesDefinition(AttributeData Channel, List<AttributeData> ChannelParameters, AttributeData Subscribe, AttributeData Publish)
 {
