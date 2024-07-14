@@ -11,4 +11,9 @@
     <AsyncAPIDocumentEnvVars Condition=" '$(AsyncAPIDocumentEnvVars)' == '' "></AsyncAPIDocumentEnvVars>
   </PropertyGroup>
 
+  <ItemGroup>
+    <AsyncAPISpecs Include="asyncapi.json" />
+    <AsyncAPIOutput Include="generated/*" />
+  </ItemGroup>
+
 </Project>

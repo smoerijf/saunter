@@ -1,4 +1,5 @@
-﻿using AsyncAPI.Saunter.Generator.Cli.ToFile;
+﻿using AsyncAPI.Saunter.Generator.Cli.FromSpecCommand;
+using AsyncAPI.Saunter.Generator.Cli.ToFile;
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,9 +12,11 @@ using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 ConsoleApp.LogError = msg => logger.LogError(msg);
 ConsoleApp.ServiceProvider = serviceProvider;
+logger.LogDebug($"Generator.Cli args: {string.Join(' ', args)}");
 
 var app = ConsoleApp.Create();
 app.Add<ToFileCommand>();
+app.Add<FromSpecCommand>();
 app.Run(args);
 
 Environment.ExitCode = 0;
