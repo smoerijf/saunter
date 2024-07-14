@@ -9,23 +9,23 @@ namespace AsyncAPI.Saunter.Generator.Cli.Tests.ToFile;
 
 public class ToFileCommandTests
 {
-    private readonly FromSpecCommand _command;
+    private readonly ToFileCommand _command;
     private readonly IEnvironmentBuilder _environment;
     private readonly IServiceProviderBuilder _builder;
     private readonly IAsyncApiDocumentExtractor _docExtractor;
     private readonly IFileWriter _fileWriter;
-    private readonly ILogger<FromSpecCommand> _logger;
+    private readonly ILogger<ToFileCommand> _logger;
     private readonly ITestOutputHelper _output;
 
     public ToFileCommandTests(ITestOutputHelper output)
     {
         this._output = output;
-        this._logger = Substitute.For<ILogger<FromSpecCommand>>();
+        this._logger = Substitute.For<ILogger<ToFileCommand>>();
         this._environment = Substitute.For<IEnvironmentBuilder>();
         this._builder = Substitute.For<IServiceProviderBuilder>();
         this._docExtractor = Substitute.For<IAsyncApiDocumentExtractor>();
         this._fileWriter = Substitute.For<IFileWriter>();
-        this._command = new FromSpecCommand(this._logger, _environment, _builder, _docExtractor, _fileWriter);
+        this._command = new ToFileCommand(this._logger, _environment, _builder, _docExtractor, _fileWriter);
     }
 
     [Fact]
