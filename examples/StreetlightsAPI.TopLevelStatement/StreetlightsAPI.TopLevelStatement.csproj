@@ -23,6 +23,23 @@
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
+  <!-- Get the latest local build nuget package from source code, from the local nuget packages source as configured in nuget.config 
+       999.* are the 'special' version number for local builds -->
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PackageReference Include="AsyncAPI.Saunter.Generator.Build" Version="999.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- For release: use a real published nuget package -->
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageReference Include="AsyncAPI.Saunter.Generator.Build" Version="*-*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Saunter\Saunter.csproj" />
   </ItemGroup>

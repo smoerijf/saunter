@@ -1,6 +1,9 @@
 # AsyncApi Generator.Cli Tool
 A dotnet tool to generate AsyncAPI specification files based of a dotnet assembly (The application itself).
 
+This tool can used to manually generate spec files from a startup assembly or to setup a custom build pipeline.
+If you are intressed in always generating spec files at build time, see [AsyncAPI.Saunter.Generator.Build](https://www.nuget.org/packages/AsyncAPI.Saunter.Generator.Build). 
+
 ## Tool usage
 ```
 dotnet asyncapi tofile [startup-assembly] --output [output-path] --format [json,yml,yaml] --doc [asyncapi-document-name]
