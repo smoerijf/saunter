@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using NLog;
 using NLog.Web;
 using Saunter;
-using Saunter.AsyncApiSchema.v2;
+using Saunter.Streetlights.Api;
 using StreetlightsAPI;
 
 LogManager.Setup().LoadConfigurationFromAppSettings();
@@ -18,29 +18,7 @@ builder.Logging.AddSimpleConsole(console => console.SingleLine = true);
 builder.Host.UseNLog();
 
 // Add Saunter to the application services. 
-builder.Services.AddAsyncApiSchemaGeneration(options =>
-{
-    options.AssemblyMarkerTypes = [typeof(StreetlightMessageBus)];
-
-    options.Middleware.UiTitle = "Streetlights API";
-
-    options.AsyncApi = new AsyncApiDocument
-    {
-        Info = new Info("Streetlights API", "1.0.0")
-        {
-            Description = "The Smartylighting Streetlights API allows you to remotely manage the city lights.",
-            License = new License("Apache 2.0")
-            {
-                Url = "https://www.apache.org/licenses/LICENSE-2.0"
-            }
-        },
-        Servers =
-        {
-            ["mosquitto"] = new Server("test.mosquitto.org", "mqtt"),
-            ["webapi"] = new Server("localhost:5000", "http"),
-        },
-    };
-});
+builder.Services.AddAsyncApiStreetlights();
 
 builder.Services.AddScoped<IStreetlightMessageBus, StreetlightMessageBus>();
 builder.Services.AddControllers();

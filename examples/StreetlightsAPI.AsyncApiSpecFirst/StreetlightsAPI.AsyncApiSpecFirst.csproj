@@ -11,7 +11,7 @@
   <ItemGroup>
     <!-- Instruct "AsyncAPI.Saunter.Generator.Build" to generate classes for this AsyncAPI specifiction -->
     <AsyncAPISpecs Include="specs/streetlights.json" OutputPath="generated" Namespace="Saunter" />
-    <!-- <AsyncAPISpecs Include="specs/streetlights.json" OutputPath="generated2" Namespace="SaunterX" />-->
+    <AsyncAPISpecs Include="specs/streetlights.yml" OutputPath="generated2" Namespace="SaunterX" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -52,6 +52,8 @@
     <None Include="../StreetlightsAPI/nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+
+    <None Include="specs\streetlights.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,6 +66,10 @@
     <Folder Include="generated2/" />
     <Compile Remove="generated2/*" />
     <None Include="generated2/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="specs\streetlights.json" />
   </ItemGroup>
   
 </Project>

@@ -52,6 +52,9 @@
           Condition=" '@(AsyncAPISpecs)' != '' "
           Inputs="@(AsyncAPISpecs)" Outputs="@(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')">
     <!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata -->
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs            2    : @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(Identity)')" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs.specs      2    : @(AsyncAPISpecs->'&quot;%(Namespace),%(DefiningProjectDirectory)%(OutputPath),%(DefiningProjectDirectory)%(Identity)&quot;', ' ')" Importance="High" />
+
     <Exec Command="dotnet &quot;$(AsyncAPICliToolPath)&quot; fromspec --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(DefiningProjectDirectory)%(OutputPath),%(DefiningProjectDirectory)%(Identity)&quot;', ' ')"
           WorkingDirectory="$(AsyncAPIBuildToolRoot)" />
   </Target>
