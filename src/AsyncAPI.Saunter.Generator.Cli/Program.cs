@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 var services = new ServiceCollection();
 services.AddLogging(builder => builder.AddSimpleConsole(x => x.SingleLine = true).SetMinimumLevel(LogLevel.Trace));
 services.AddToFileCommand();
+services.AddFromSpecCommand();
 
 using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();

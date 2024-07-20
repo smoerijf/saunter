@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <!-- Instruct "AsyncAPI.Saunter.Generator.Build" to generate classes for this AsyncAPI specifiction -->
-    <AsyncAPISpecs Include="specs/streetlights.yml" OutputPath="generated" Namespace="Saunter" />
-    <AsyncAPISpecs Include="specs/test.yml" OutputPath="generated2" Namespace="SaunterX" />
+    <AsyncAPISpecs Include="specs/streetlights.json" OutputPath="generated" Namespace="Saunter" />
+    <!-- <AsyncAPISpecs Include="specs/streetlights.json" OutputPath="generated2" Namespace="SaunterX" />-->
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -46,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-
     <Compile Include="../StreetlightsAPI/API.cs" />
     <Compile Include="../StreetlightsAPI/Messaging.cs" />
 
@@ -61,7 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="generated\" />
+    <Folder Include="generated/" />
+    <Folder Include="generated2/" />
+    <Compile Remove="generated2/*" />
+    <None Include="generated2/*" />
   </ItemGroup>
   
 </Project>

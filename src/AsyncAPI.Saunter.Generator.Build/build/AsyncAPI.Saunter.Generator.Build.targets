@@ -3,8 +3,8 @@
 
   <Target Name="AsyncAPIInitial">
     <Message Text="===== AsyncAPI 999.$([System.DateTime]::Now.ToString(&quot;yy&quot;))$([System.DateTime]::Now.DayOfYear).$([System.DateTime]::Now.ToString(&quot;HHmm.ss&quot;)) ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI =====" Importance="High" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs: @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(Identity)')" Importance="High" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs.Outputs: @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs                 : @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(Identity)')" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs.Outputs         : @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')" Importance="High" />
   </Target>
 
   <Target Name="AsyncAPICommonBuildProperties">
@@ -15,13 +15,18 @@
       <AsyncAPICliToolPath>$([System.IO.Path]::Combine($(AsyncAPIBuildToolRoot), tools, net8.0, AsyncAPI.Saunter.Generator.Cli.dll))</AsyncAPICliToolPath>
     </PropertyGroup>
 
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPICliToolPath: $(AsyncAPICliToolPath)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIBuildToolBuildDir: $(AsyncAPIBuildToolBuildDir)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIBuildToolRoot: $(AsyncAPIBuildToolRoot)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPICliToolPath           : $(AsyncAPICliToolPath)" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIBuildToolBuildDir     : $(AsyncAPIBuildToolBuildDir)" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIBuildToolRoot         : $(AsyncAPIBuildToolRoot)" Importance="High" />
+
+    <Message Text="AsyncAPI.Generator.Build; MSBuildThisFile               : $(MSBuildThisFile)" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; MSBuildThisFileDirectory      : $(MSBuildThisFileDirectory)" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; MSBuildProjectFullPath        : $(MSBuildProjectFullPath)" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; MSBuildProjectDirectory       : $(MSBuildProjectDirectory)" Importance="High" />
   </Target>
 
   <!-- AsyncAPIGenerateDocumentsOnBuild: Generate .json/.yml spec at build time from code-first attributes -->
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="AsyncAPICommonBuildProperties" 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="AsyncAPICommonBuildProperties"
           Condition=" '$(AsyncAPIGenerateDocumentsOnBuild)' == 'true' ">
     <PropertyGroup>
       <AsyncAPICliToolStartupAssembly>$([System.IO.Path]::Combine($(MSBuildProjectDirectory), $(OutputPath), $(AssemblyTitle).dll))</AsyncAPICliToolStartupAssembly>
@@ -30,17 +35,13 @@
 
     <!-- Debug output: print some paths, set -v flag (verbosity) at least to [n]ormal to show in build output -->
     <Message Text="AsyncAPI.Generator.Build; AsyncAPICliToolStartupAssembly: $(AsyncAPICliToolStartupAssembly)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPICliToolOutputPath: $(AsyncAPICliToolOutputPath)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPICliToolOutputPath     : $(AsyncAPICliToolOutputPath)" />
 
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentFormats: $(AsyncAPIDocumentFormats)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentOutputPath: $(AsyncAPIDocumentOutputPath)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentNames: $(AsyncAPIDocumentNames)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentFilename: $(AsyncAPIDocumentFilename)" />
-    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentEnvVars: $(AsyncAPIDocumentEnvVars)" />
-    <Message Text="AsyncAPI.Generator.Build; MSBuildThisFile: $(MSBuildThisFile)" />
-    <Message Text="AsyncAPI.Generator.Build; MSBuildThisFileDirectory: $(MSBuildThisFileDirectory)" />
-    <Message Text="AsyncAPI.Generator.Build; MSBuildProjectFullPath: $(MSBuildProjectFullPath)" />
-    <Message Text="AsyncAPI.Generator.Build; MSBuildProjectDirectory: $(MSBuildProjectDirectory)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentFormats       : $(AsyncAPIDocumentFormats)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentOutputPath    : $(AsyncAPIDocumentOutputPath)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentNames         : $(AsyncAPIDocumentNames)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentFilename      : $(AsyncAPIDocumentFilename)" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPIDocumentEnvVars       : $(AsyncAPIDocumentEnvVars)" />
 
     <Exec Command="dotnet &quot;$(AsyncAPICliToolPath)&quot; tofile &quot;$(AsyncAPICliToolStartupAssembly)&quot; --output &quot;$(AsyncAPICliToolOutputPath)&quot; --format &quot;$(AsyncAPIDocumentFormats)&quot; --doc &quot;$(AsyncAPIDocumentNames)&quot; --filename &quot;$(AsyncAPIDocumentFilename)&quot; --env &quot;$(AsyncAPIDocumentEnvVars)&quot;"
           WorkingDirectory="$(AsyncAPIBuildToolRoot)" />
@@ -48,10 +49,9 @@
 
   <!-- AsyncAPISpecs: Generate dataclasses from .json/.yml AsyncAPI spec files -->
   <Target Name="GenerateCodeForAsyncAPI" BeforeTargets="BeforeBuild" DependsOnTargets="AsyncAPICommonBuildProperties" 
+          Condition=" '@(AsyncAPISpecs)' != '' "
           Inputs="@(AsyncAPISpecs)" Outputs="@(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')">
     <!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata -->
-    <Message Text="Generate: --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(OutputPath),%(Identity)&quot;', ' ')" Importance="High" />
-    
     <Exec Command="dotnet &quot;$(AsyncAPICliToolPath)&quot; fromspec --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(DefiningProjectDirectory)%(OutputPath),%(DefiningProjectDirectory)%(Identity)&quot;', ' ')"
           WorkingDirectory="$(AsyncAPIBuildToolRoot)" />
   </Target>
