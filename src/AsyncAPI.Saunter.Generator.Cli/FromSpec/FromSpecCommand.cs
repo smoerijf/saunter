@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-using System.Text;
-using AsyncAPI.Saunter.Generator.Cli.FromSpec.AsyncApiInterface;
-using AsyncAPI.Saunter.Generator.Cli.FromSpec.DataTypes;
-using CaseConverter;
+﻿using System.Text;
+using AsyncAPI.Saunter.Generator.FromSpec;
 using ConsoleAppFramework;
 using Microsoft.Extensions.Logging;
 
 namespace AsyncAPI.Saunter.Generator.Cli.FromSpec;
 
-internal class FromSpecCommand(ILogger<FromSpecCommand> logger, IAsyncApiGenerator asyncApiGenerator, IDataTypesGenerator dataTypesGenerator)
+internal class FromSpecCommand(ILogger<FromSpecCommand> logger, IAsyncApiCodeGenerator codeGenerator)
 {
     /// <summary>
     /// Retrieves AsyncAPI spec from a startup assembly and writes to file.
@@ -20,58 +17,23 @@ internal class FromSpecCommand(ILogger<FromSpecCommand> logger, IAsyncApiGenerat
         logger.LogInformation($"FromSpec(#{specs.Length}): --specs {string.Join(';', specs)}");
 
         var specsToGenerate = Split(specs);
-        var output = specsToGenerate.ToDictionary(x => x, _ => new StringBuilder());
-
-        // Common
-        var topicsClassName = "Topics";
-        foreach (var (spec, _) in output)
+        var output = await codeGenerator.FromSpecs(specsToGenerate).ConfigureAwait(false);
+        
+        // Write to file
+        foreach (var (spec, contents) in output)
         {
             Directory.CreateDirectory(spec.OutputDirectory);
 
-            if (!File.Exists(spec.SpecFile))
-            {
-                throw new ArgumentException($"Provided spec does not exist: {Path.GetFullPath(spec.SpecFile)}.");
-            }
-        }
-
-        // AsyncAPI Interface
-        var aaState = new AsyncApiState();
-        foreach (var (spec, sb) in output)
-        {
-            var options = new GeneratorOptions($"{spec.NamespaceName}.{spec.SpecName}.Api", spec.SpecName, $"{topicsClassName}");
-            var contents = asyncApiGenerator.GenerateAsyncApiInterfaces(options, spec.Contents, aaState);
-            sb.Append(contents);
-        }
-
-        // DataTypes
-        var nsState = new DataTypesGeneratorState();
-        foreach (var (spec, sb) in output)
-        {
-            var options = new GeneratorOptions($"{spec.NamespaceName}.{spec.SpecName}.Api", spec.SpecName, $"{topicsClassName}");
-            var contents = await dataTypesGenerator.GenerateDataTypesAsync(options, spec.Contents, nsState).ConfigureAwait(false);
-            sb.Append(contents);
-        }
-
-        // Write to file
-        foreach (var (spec, sb) in output)
-        {
-            var contents = sb.ToString();
             var outputFile = spec.OutputFileName;
-            await File.WriteAllTextAsync(outputFile, contents, Encoding.UTF8);
+            await File.WriteAllTextAsync(outputFile, contents, Encoding.UTF8).ConfigureAwait(false);
             logger.LogInformation($"Created {outputFile} (size: {contents.Length:N0} chars)");
         }
 
         return 0;
     }
 
-    private record SpecToGenerate(string NamespaceName, string OutputDirectory, string SpecFile)
+    private record SpecToGenerate(string NamespaceName, string OutputDirectory, string SpecFilePath) : Generator.FromSpec.SpecToGenerate(NamespaceName, SpecFilePath)
     {
-        private string _contents;
-
-        public string Contents => this._contents ??= File.ReadAllText(this.SpecFile);
-
-        public string SpecName => Path.GetFileNameWithoutExtension(this.SpecFile).ToPascalCase();
-
         public string OutputFileName => Path.GetFullPath(Path.Combine(this.OutputDirectory, $"{this.SpecName}.g.cs"));
     }
 
@@ -82,7 +44,7 @@ internal class FromSpecCommand(ILogger<FromSpecCommand> logger, IAsyncApiGenerat
             var split = spec.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
             if (split.Count == 3 && !split.Any(string.IsNullOrWhiteSpace))
             {
-                yield return new SpecToGenerate(NamespaceName: split[0], OutputDirectory: split[1], SpecFile: split[2]);
+                yield return new SpecToGenerate(NamespaceName: split[0], OutputDirectory: split[1], SpecFilePath: split[2]);
             }
         }
     }

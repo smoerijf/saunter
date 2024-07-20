@@ -4,7 +4,7 @@ using NSwag;
 using NJsonSchema.CodeGeneration.CSharp;
 
 
-namespace AsyncAPI.Saunter.Generator.Cli.FromSpec.DataTypes;
+namespace AsyncAPI.Saunter.Generator.FromSpec.DataTypes;
 
 internal interface IDataTypesGenerator
 {
@@ -28,7 +28,7 @@ internal class NSwagGenerator : IDataTypesGenerator
                 ExcludedTypeNames = state.AlreadyGeneratedDataTypes.ToArray(),
             },
             GenerateClientClasses = false,
-            AdditionalNamespaceUsages = state.AlreadyGeneratedNamespaces.ToArray()
+            AdditionalNamespaceUsages = [],
         };
 
         var generator = new CSharpClientGenerator(document, settings);

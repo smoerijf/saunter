@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace AsyncAPI.Saunter.Generator.Cli.ToFile;
+namespace AsyncAPI.Saunter.Generator;
 
-internal static class DependencyResolver
+public static class DependencyResolver
 {
     public static void Init(string startupAssemblyBasePath)
     {

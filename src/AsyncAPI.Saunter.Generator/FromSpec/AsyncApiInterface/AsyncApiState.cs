@@ -1,4 +1,4 @@
-﻿namespace AsyncAPI.Saunter.Generator.Cli.FromSpec.AsyncApiInterface;
+﻿namespace AsyncAPI.Saunter.Generator.FromSpec.AsyncApiInterface;
 
 internal class AsyncApiState
 {

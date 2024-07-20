@@ -4,7 +4,7 @@ using CaseConverter;
 using LEGO.AsyncAPI.Models;
 using LEGO.AsyncAPI.Readers;
 
-namespace AsyncAPI.Saunter.Generator.Cli.FromSpec.AsyncApiInterface;
+namespace AsyncAPI.Saunter.Generator.FromSpec.AsyncApiInterface;
 
 internal interface IAsyncApiGenerator
 {
@@ -102,7 +102,8 @@ internal class AsyncApiGenerator : IAsyncApiGenerator
               //     At: {{DateTime.Now.ToLocalTime():U}}
               // </auto-generated>
               //----------------------
-
+              
+              using Saunter;
               using Saunter.Attributes;
               using Saunter.AsyncApiSchema.v2;
               using System.CodeDom.Compiler;
@@ -175,10 +176,10 @@ internal class AsyncApiGenerator : IAsyncApiGenerator
 
     private static string FromReference(string reference)
     {
-        var prefix = "#/components/parameters/";
-        if (reference.IndexOf(prefix) == 0)
+        const string prefix = "#/components/parameters/";
+        if (reference.IndexOf(prefix, StringComparison.OrdinalIgnoreCase) == 0)
         {
-            return reference[prefix.Length..];
+            return reference.Substring(prefix.Length);
         }
         throw new ArgumentException($"Invalid reference: {reference}");
     }

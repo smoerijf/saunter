@@ -1,4 +1,4 @@
-﻿namespace AsyncAPI.Saunter.Generator.Cli.FromSpec.DataTypes;
+﻿namespace AsyncAPI.Saunter.Generator.FromSpec.DataTypes;
 
 internal class DataTypesGeneratorState
 {

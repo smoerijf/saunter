@@ -1,16 +1,14 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using YamlDotNet.RepresentationModel;
 using Yaml2JsonNode;
 
-namespace AsyncAPI.Saunter.Generator.Cli.FromSpec.DataTypes;
+namespace AsyncAPI.Saunter.Generator.FromSpec.DataTypes;
 
 internal static class OpenApiCompatibility
 {
     internal static string PrepareSpecFile(string spec)
     {
-        Debugger.Launch();
         var reader = new StringReader(spec);
         var yamlStream = new YamlStream();
         yamlStream.Load(reader);

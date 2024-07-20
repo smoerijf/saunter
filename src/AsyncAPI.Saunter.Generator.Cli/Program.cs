@@ -1,13 +1,14 @@
-﻿using AsyncAPI.Saunter.Generator.Cli.FromSpec;
+﻿using AsyncAPI.Saunter.Generator;
+using AsyncAPI.Saunter.Generator.Cli.FromSpec;
 using AsyncAPI.Saunter.Generator.Cli.ToFile;
+using AsyncAPI.Saunter.Generator.FromSpec;
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-var services = new ServiceCollection();
-services.AddLogging(builder => builder.AddSimpleConsole(x => x.SingleLine = true).SetMinimumLevel(LogLevel.Trace));
+var services = GeneratorServiceCollection.Create();
 services.AddToFileCommand();
-services.AddFromSpecCommand();
+services.AddFromSpecCodeGenerator();
 
 using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();

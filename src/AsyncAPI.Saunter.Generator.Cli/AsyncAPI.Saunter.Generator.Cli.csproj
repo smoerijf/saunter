@@ -39,9 +39,6 @@
 
   <ItemGroup>
     <PackageReference Include="AsyncAPI.NET.Readers" Version="5.2.1" />
-    <PackageReference Include="Yaml2JsonNode " Version="2.1.0" />
-    <PackageReference Include="CaseConverter" Version="2.0.1" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.0.7" />
     <PackageReference Include="ConsoleAppFramework" Version="5.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -52,6 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AsyncAPI.Saunter.Generator\AsyncAPI.Saunter.Generator.csproj" />
     <ProjectReference Include="..\Saunter\Saunter.csproj" />
   </ItemGroup>
 
