@@ -10,7 +10,8 @@
 
   <ItemGroup>
     <!-- Instruct "AsyncAPI.Saunter.Generator.Build" to generate classes for this AsyncAPI specifiction -->
-    <AsyncAPISpecs Include="specs/streetlights.yml" Namespace="Saunter" />
+    <AsyncAPISpecs Include="specs/streetlights.yml" OutputPath="generated" Namespace="Saunter" />
+    <AsyncAPISpecs Include="specs/test.yml" OutputPath="generated2" Namespace="SaunterX" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -45,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="specs\" />
 
     <Compile Include="../StreetlightsAPI/API.cs" />
     <Compile Include="../StreetlightsAPI/Messaging.cs" />
@@ -58,6 +58,10 @@
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.3.2" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="generated\" />
   </ItemGroup>
   
 </Project>

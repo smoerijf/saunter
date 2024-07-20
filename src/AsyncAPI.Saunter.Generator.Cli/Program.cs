@@ -1,4 +1,4 @@
-﻿using AsyncAPI.Saunter.Generator.Cli.FromSpecCommand;
+﻿using AsyncAPI.Saunter.Generator.Cli.FromSpec;
 using AsyncAPI.Saunter.Generator.Cli.ToFile;
 using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;

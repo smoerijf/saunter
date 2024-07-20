@@ -61,12 +61,18 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncAPI.Saunter.Generator.Cli.Tests", "test\AsyncAPI.Saunter.Generator.Cli.Tests\AsyncAPI.Saunter.Generator.Cli.Tests.csproj", "{18AD0249-0436-4A26-9972-B97BA6905A54}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreetlightsAPI.TopLevelStatement", "examples\StreetlightsAPI.TopLevelStatement\StreetlightsAPI.TopLevelStatement.csproj", "{6F6B8B03-9045-46EC-AE12-E7ADA492F9FA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A320E670-5CB0-4815-AF67-D8D09FC92A2A} = {A320E670-5CB0-4815-AF67-D8D09FC92A2A}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncAPI.Saunter.Generator.Build", "src\AsyncAPI.Saunter.Generator.Build\AsyncAPI.Saunter.Generator.Build.csproj", "{A320E670-5CB0-4815-AF67-D8D09FC92A2A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncAPI.Saunter.Generator.Build.Tests", "test\AsyncAPI.Saunter.Generator.Build.Tests\AsyncAPI.Saunter.Generator.Build.Tests.csproj", "{61142B10-7B49-436E-AE32-2737658BD1E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreetlightsAPI.AsyncApiSpecFirst", "examples\StreetlightsAPI.AsyncApiSpecFirst\StreetlightsAPI.AsyncApiSpecFirst.csproj", "{19A30A6D-1E91-44FD-BB5D-428D12D0160D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A320E670-5CB0-4815-AF67-D8D09FC92A2A} = {A320E670-5CB0-4815-AF67-D8D09FC92A2A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

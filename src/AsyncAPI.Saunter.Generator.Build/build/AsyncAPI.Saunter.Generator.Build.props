@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AsyncAPISpecs Include="asyncapi.json" />
-    <AsyncAPIOutput Include="generated/*" />
+    <!-- Example how to specify .json or .yml AsyncApi spec files -->
+    <!-- <AsyncAPISpecs Include="asyncapi.json" OutputPath="generated" Namespace="Saunter.Generated" /> -->
   </ItemGroup>
 
 </Project>

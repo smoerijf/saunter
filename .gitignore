@@ -598,3 +598,5 @@ fabric.properties
 
 # End of https://www.gitignore.io/api/csharp,jetbrains,visualstudio
 /examples/StreetlightsAPI/Properties/launchSettings.json
+
+*g.cs

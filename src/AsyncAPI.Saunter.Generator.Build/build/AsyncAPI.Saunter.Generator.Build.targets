@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<Project>
+<Project InitialTargets="AsyncAPIInitial" >
+
+  <Target Name="AsyncAPIInitial">
+    <Message Text="===== AsyncAPI 999.$([System.DateTime]::Now.ToString(&quot;yy&quot;))$([System.DateTime]::Now.DayOfYear).$([System.DateTime]::Now.ToString(&quot;HHmm.ss&quot;)) ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI ===== AsyncAPI =====" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs: @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(Identity)')" Importance="High" />
+    <Message Text="AsyncAPI.Generator.Build; AsyncAPISpecs.Outputs: @(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')" Importance="High" />
+  </Target>
 
   <Target Name="AsyncAPICommonBuildProperties">
     <!-- Calculate some common paths -->
@@ -14,6 +20,7 @@
     <Message Text="AsyncAPI.Generator.Build; AsyncAPIBuildToolRoot: $(AsyncAPIBuildToolRoot)" />
   </Target>
 
+  <!-- AsyncAPIGenerateDocumentsOnBuild: Generate .json/.yml spec at build time from code-first attributes -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="AsyncAPICommonBuildProperties" 
           Condition=" '$(AsyncAPIGenerateDocumentsOnBuild)' == 'true' ">
     <PropertyGroup>
@@ -39,16 +46,13 @@
           WorkingDirectory="$(AsyncAPIBuildToolRoot)" />
   </Target>
 
-  <ItemGroup Condition=" '$(AsyncAPIOutput)' == '' ">
-    <AsyncAPIOutput Include="g" />
-  </ItemGroup>
-
+  <!-- AsyncAPISpecs: Generate dataclasses from .json/.yml AsyncAPI spec files -->
   <Target Name="GenerateCodeForAsyncAPI" BeforeTargets="BeforeBuild" DependsOnTargets="AsyncAPICommonBuildProperties" 
-          Inputs="@(AsyncAPISpecs)" Outputs="@(AsyncAPIOutput)">
+          Inputs="@(AsyncAPISpecs)" Outputs="@(AsyncAPISpecs->'%(DefiningProjectDirectory)%(OutputPath)/%(Filename).g.cs')">
     <!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata -->
-    <Message Text="Generate: --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(Identity)&quot;', ' ')" />
+    <Message Text="Generate: --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(OutputPath),%(Identity)&quot;', ' ')" Importance="High" />
     
-    <Exec Command="dotnet &quot;$(AsyncAPICliToolPath)&quot; fromspec --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(Identity)&quot;', ' ')"
+    <Exec Command="dotnet &quot;$(AsyncAPICliToolPath)&quot; fromspec --specs @(AsyncAPISpecs->'&quot;%(Namespace),%(DefiningProjectDirectory)%(OutputPath),%(DefiningProjectDirectory)%(Identity)&quot;', ' ')"
           WorkingDirectory="$(AsyncAPIBuildToolRoot)" />
   </Target>
 
