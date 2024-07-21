@@ -18,7 +18,7 @@ internal class FromSpecCommand(ILogger<FromSpecCommand> logger, IAsyncApiCodeGen
 
         var specsToGenerate = Split(specs);
         var output = await codeGenerator.FromSpecs(specsToGenerate).ConfigureAwait(false);
-        
+
         // Write to file
         foreach (var (spec, contents) in output)
         {

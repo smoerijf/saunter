@@ -46,7 +46,7 @@ internal class AsyncApiGenerator : IAsyncApiGenerator
 
         // Events
         this.AddInterface(sb, options, options.ClassName, $"{options.ClassName}Events", new("PublishOperation", "evt", x => x.Publish), asyncApiDocument.Channels.Where(x => x.Value.Publish != null));
-        
+
         sb.AppendLine("}"); // close namespace
         sb.AppendLine();
 

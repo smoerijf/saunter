@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
-using YamlDotNet.RepresentationModel;
 using Yaml2JsonNode;
+using YamlDotNet.RepresentationModel;
 
 namespace AsyncAPI.Saunter.Generator.FromSpec.DataTypes;
 

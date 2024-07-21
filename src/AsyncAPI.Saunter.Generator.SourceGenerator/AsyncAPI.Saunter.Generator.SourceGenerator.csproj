@@ -55,7 +55,7 @@
     <None Include="build/*" Pack="true" PackagePath="/build" />
 
     <!-- Package the generator in the analyzer directory of the nuget package -->
-    <None Include="$(OutputPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)*" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

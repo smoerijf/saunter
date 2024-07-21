@@ -1,8 +1,7 @@
 ﻿using NJsonSchema;
-using NSwag.CodeGeneration.CSharp;
-using NSwag;
 using NJsonSchema.CodeGeneration.CSharp;
-
+using NSwag;
+using NSwag.CodeGeneration.CSharp;
 
 namespace AsyncAPI.Saunter.Generator.FromSpec.DataTypes;
 

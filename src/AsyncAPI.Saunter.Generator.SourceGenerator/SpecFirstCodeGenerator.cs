@@ -42,7 +42,7 @@ public class SpecFirstCodeGenerator : IIncrementalGenerator
             context.AddSource($"{spec.SpecFileName}.g.cs", contents);
         }
     }
-    
+
     public static readonly DiagnosticDescriptor MissingNamespace = new(
         "AA0001",
         "No namespace provided for AsyncAPI code generator",
