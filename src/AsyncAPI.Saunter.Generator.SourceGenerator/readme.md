@@ -13,13 +13,10 @@ After adding the nuget package reference, the AsyncAPI code generation needs to 
 ```
 
 ## Debugging options
-Configure rosyln to emit generated source code files on disk. Default location: 
+Configure rosyln to emit generated source code files on disk. Default location:  
 ```<Csproj-root>/obj/Debug/<TargetFramework>/generated/AsyncAPI.Saunter.Generator.SourceGenerator/AsyncAPI.Saunter.Generator.SourceGenerator.SpecFirstCodeGenerator```
 ```
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 ```
@@ -44,5 +41,5 @@ These files will not show up in Visual Studio by default, but these can be added
 Since these file are created on disk, most likely within a directory under git source control, these generated files 
 can be excluded from git by adding this line to .gitignore file:
 ```
-*g.cs
+*.g.cs
 ```
