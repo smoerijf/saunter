@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\examples\\StreetlightsAPI.AsyncApiSpecFirst\\StreetlightsAPI.AsyncApiSpecFirst.csproj"
+    }
+  }
+}

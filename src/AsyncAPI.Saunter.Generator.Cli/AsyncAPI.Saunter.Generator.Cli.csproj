@@ -44,10 +44,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7" />
+
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AsyncAPI.Saunter.Generator\AsyncAPI.Saunter.Generator.csproj" />
     <ProjectReference Include="..\Saunter\Saunter.csproj" />
   </ItemGroup>
 

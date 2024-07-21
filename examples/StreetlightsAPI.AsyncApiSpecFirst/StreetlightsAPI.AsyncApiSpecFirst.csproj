@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Exclude the output of source generators from the compilation, but include into the project -->
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Instruct "AsyncAPI.Saunter.Generator.SourceGenerator" to generate classes for this AsyncAPI specifiction -->
+    <AdditionalFiles Include="specs/streetlights.json" Namespace="Saunter" />
+    <AdditionalFiles Include="specs/streetlights.yml" Namespace="Saunter.Yml" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\StreetlightsAPI.TopLevelStatement.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\StreetlightsAPI.TopLevelStatement.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- Get the latest local build nuget package from source code, from the local nuget packages source as configured in nuget.config 
+       999.* are the 'special' version number for local builds -->
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+ <!--   <ProjectReference Include="..\..\src\AsyncAPI.Saunter.Generator.SourceGenerator\AsyncAPI.Saunter.Generator.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  -->
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PackageReference Include="AsyncAPI.Saunter.Generator.SourceGenerator" Version="999.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- For release: use a real published nuget package -->
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageReference Include="AsyncAPI.Saunter.Generator.SourceGenerator" Version="*-*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Saunter\Saunter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../StreetlightsAPI/API.cs" />
+    <Compile Include="../StreetlightsAPI/Messaging.cs" />
+
+    <None Include="../StreetlightsAPI/nlog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="5.3.2" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.11" />
+  </ItemGroup>
+  
+</Project>

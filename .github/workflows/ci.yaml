@@ -16,8 +16,10 @@ jobs:
         uses: ./.github/npm
       - name: Run dotnet build src
         run: dotnet build ./src/Saunter-src.slnf --configuration Debug
+      - name: Run dotnet restore
+        run: dotnet restore
       - name: Run dotnet build all
-        run: dotnet build --configuration Debug
+        run: dotnet build --configuration Debug --no-restore
       - name: unit test
         run: dotnet test --no-build --configuration Debug
 
