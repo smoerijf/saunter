@@ -5,12 +5,19 @@
     <IsPackable>false</IsPackable>
 
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Exclude the output of source generators from the compilation, but include into the project -->
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Instruct "AsyncAPI.Saunter.Generator.SourceGenerator" to generate classes for this AsyncAPI specifiction -->
     <AdditionalFiles Include="specs/streetlights.json" Namespace="Saunter" />
-    <AdditionalFiles Include="specs/streetlights.yml" Namespace="SaunterX" />
+    <AdditionalFiles Include="specs/streetlights.yml" Namespace="Saunter.Yml" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

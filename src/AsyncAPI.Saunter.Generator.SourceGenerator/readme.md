@@ -1,30 +1,48 @@
 # AsyncApi Generator.SourceGenerator Nuget Package
-A nuget package to generate AsyncAPI specification files at build time, based on code-first attributes. This nuget package requires .NET8.0 runtime in order to work. The consuming csproj doesn't need to target .NET8.0.
+A nuget package to generate data classes and AsyncAPI interface(s) from AsyncAPI spec file(s). Add ```AdditionalFiles``` to your csproj-file 
+to specify for which AsyncAPI specification file(s) source code needs to be generated and in which namespace. 
 
-This nuget packages can help to better control API changes by commiting the AsyncAPI spec to source control. By always generating spec files at build, it will be clear when the api changes. 
+## Configuration
+After adding the nuget package reference, the AsyncAPI code generation needs to be configured in the csproj-file:
+```
+  <ItemGroup>
+    <!-- Instruct "AsyncAPI.Saunter.Generator.SourceGenerator" to generate classes for these AsyncAPI specifiction files -->
+    <AdditionalFiles Include="specs/streetlights.json" Namespace="Saunter" />
+    <AdditionalFiles Include="specs/streetlights.yml" Namespace="Saunter.Yml" />
+  </ItemGroup>
+```
 
-# Customization Properties
-The AsyncAPI spec generation can be configured through project properties in the csproj-file (or included via [.props files](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build)):
+## Debugging options
+Configure rosyln to emit generated source code files on disk. Default location: 
+```<Csproj-root>/obj/Debug/<TargetFramework>/generated/AsyncAPI.Saunter.Generator.SourceGenerator/AsyncAPI.Saunter.Generator.SourceGenerator.SpecFirstCodeGenerator```
 ```
   <PropertyGroup>
-    <AsyncAPIGenerateDocumentsOnBuild></AsyncAPIGenerateDocumentsOnBuild>
-    <AsyncAPIDocumentFormats></AsyncAPIDocumentFormats>
-    <AsyncAPIDocumentOutputPath></AsyncAPIDocumentOutputPath>
-    <AsyncAPIDocumentNames></AsyncAPIDocumentNames>
-    <AsyncAPIDocumentFilename></AsyncAPIDocumentFilename>
-    <AsyncAPIDocumentEnvVars></AsyncAPIDocumentEnvVars>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 ```
 
-Defaults are the same as the underlying [Generator.Cli tool](https://www.nuget.org/packages/AsyncAPI.Saunter.Generator.Cli).  
+Configure roslyn to emit generated source code in a custom location:
+```
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+```
 
-If the ```AsyncAPI.Saunter.Generator.Build``` Nuget package is referenced, the default is to generate AsyncAPI spec files at build time.
+These files will not show up in Visual Studio by default, but these can be added:
+```
+  <ItemGroup>
+    <!-- Exclude the output of source generators from the compilation, but include into the project -->
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
+  </ItemGroup>
+```
 
-- _AsyncAPIGenerateDocumentsOnBuild_: Whether to actually generate AsyncAPI spec files on build (true or false, default: true)
-- _AsyncAPIDocumentFormats_: the output formats to generate, can be a combination of json, yml and/or yaml.
-- _AsyncAPIDocumentOutputPath_: relative path where the AsyncAPI will be output (default is the csproj root path: ./)
-- _AsyncAPIDocumentNames_: The AsyncAPI documents to generate. (default: generate all known documents)
-- _AsyncAPIDocumentFilename_: the template for the outputted file names. Default: "{document}_asyncapi.{extension}" 
-- _AsyncAPIDocumentEnvVars_: define environment variable(s) for the application. Formatted as a comma separated list of _key=value_ pairs, example: ```ASPNETCORE_ENVIRONMENT=AsyncAPI,CONNECT_TO_DATABASE=false```. 
-
-None of these properties are mandatory. Only referencing the [AsyncAPI.Saunter.Generator.Build](https://www.nuget.org/packages/AsyncAPI.Saunter.Generator.Build) Nuget package will generate a json AsyncAPI spec file for all AsyncAPI documents.
+Since these file are created on disk, most likely within a directory under git source control, these generated files 
+can be excluded from git by adding this line to .gitignore file:
+```
+*g.cs
+```

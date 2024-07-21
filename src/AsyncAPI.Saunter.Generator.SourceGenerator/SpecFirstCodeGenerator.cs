@@ -39,6 +39,7 @@ public class SpecFirstCodeGenerator : IIncrementalGenerator
 
         foreach (var (spec, contents) in output)
         {
+            context.ReportDiagnostic(Diagnostic.Create(SourceGenerated, null, spec.SpecFileName));
             context.AddSource($"{spec.SpecFileName}.g.cs", contents);
         }
     }
@@ -49,5 +50,13 @@ public class SpecFirstCodeGenerator : IIncrementalGenerator
         "Missing 'Namespace' for {0}",
         "SourceGenerator",
         DiagnosticSeverity.Error,
+        true);
+
+    public static readonly DiagnosticDescriptor SourceGenerated = new(
+        "AA0002",
+        "Successfully generated code for AsyncAPI spec",
+        "Code generated for {0}",
+        "SourceGenerator",
+        DiagnosticSeverity.Info,
         true);
 }

@@ -10,7 +10,7 @@ public interface IAsyncApiCodeGenerator
     Task<List<(TSpecToGenerate spec, string contents)>> FromSpecs<TSpecToGenerate>(IEnumerable<TSpecToGenerate> specsToGenerate) where TSpecToGenerate : SpecToGenerate;
 }
 
-internal class CodeGenerator(ILogger<CodeGenerator> logger, IAsyncApiGenerator asyncApiGenerator, IDataTypesGenerator dataTypesGenerator) : IAsyncApiCodeGenerator
+internal class CodeGenerator(IAsyncApiGenerator asyncApiGenerator, IDataTypesGenerator dataTypesGenerator) : IAsyncApiCodeGenerator
 {
     public async Task<List<(TSpecToGenerate spec, string contents)>> FromSpecs<TSpecToGenerate>(IEnumerable<TSpecToGenerate> specsToGenerate) where TSpecToGenerate : SpecToGenerate
     {
